@@ -192,23 +192,17 @@ exports.getAllProperties = getAllProperties;
  */
 const addProperty = function(property) {
 const queryString = `
-INSERT INTO addProperty (ownder_id, title, description)
-` 
-exports.addProperty = addProperty;
-
-
-
-const queryString = `
-INSERT INTO users (name, email, password)
-VALUES ($1, $2, $3)
+INSERT INTO properties (owner_id, title, description, thumbnail_photo_url, cover_photo_url, cost_per_night, street, city, province, post_code, country, parking_spaces, number_of_bathrooms, number_of_bedrooms)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 RETURNING *;
 `;
-const values = [user.name, user.email, user.password];
+const values = [property.owner_id, property.title, property.description, property.thumbnail_photo_url, property.cover_photo_url, property.cost_per_night, property.street, property.city, property.province, property.post_code, property.country, property.parking_spaces, property.number_of_bathrooms, property.number_of_bedrooms]
 return pool.query(queryString, values)
   .then(res => {
-    return res.rows[0];
+    return res.rows
   })
   .catch(err => {
-    return console.log('query error:', err);
+    return console.log('query error:', err)
   })
 };
+exports.addProperty = addProperty;
