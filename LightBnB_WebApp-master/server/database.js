@@ -73,7 +73,7 @@ const addUser =  function(user) {
   VALUES ($1, $2, $3)
   RETURNING *;
   `;
-  const values = [user.name, user.name, user.password];
+  const values = [user.name, user.email, user.password];
   return pool.query(queryString, values)
     .then(res => {
       return res.rows[0];
@@ -93,8 +93,26 @@ exports.addUser = addUser;
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function(guest_id, limit = 10) {
-  return getAllProperties(null, 2);
-}
+  const queryString = `
+  SELECT properties.*, reservations.*, avg(rating) as average_rating
+  FROM reservations
+  JOIN properties ON reservations.property_id = properties.id
+  JOIN property_reviews ON properties.id = property_reviews.property_id 
+  WHERE reservations.guest_id = $1
+  AND reservations.end_date < now()::date
+  GROUP BY properties.id, reservations.id
+  ORDER BY reservations.start_date
+  LIMIT $2
+  `;
+  const values = [guest_id, limit];
+  return pool.query(queryString, values)
+    .then(res => {
+      return res.rows;
+    })
+    .catch(err => {
+      return console.log('query error: err');
+    });
+};
 exports.getAllReservations = getAllReservations;
 
 /// Properties
